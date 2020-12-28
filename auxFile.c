@@ -1,4 +1,4 @@
-#include "aux.h"
+#include "auxFile.h"
 
 unsigned long hashFun(char *str){
     unsigned long hash = 5381;

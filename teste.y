@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "string.h"      
 #include "lex.yy.c"
-#include "aux.c"
+#include "auxFile.c"
 
 
 HASH_TABLE tabID = new_hash_table();
