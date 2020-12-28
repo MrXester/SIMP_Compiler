@@ -42,10 +42,10 @@ cmd : Atrib
 Atrib :  ID   '='  Expr   '\n'      { printf("%sSTOREG %d\n",$3,hashFun($1));}
       ;
 
-Expr : ExprInt
-     | ExprStr
-     | ExprBool
-     | ExprFloat
+Expr : ExprInt                      { asprintf(&$$, "%s",$1); }
+     | ExprStr                      { asprintf(&$$, "%s",$1); }
+     | ExprBool                     { asprintf(&$$, "%s",$1); }
+     | ExprFloat                    { asprintf(&$$, "%s",$1); }
      ;
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -65,6 +65,7 @@ ExprCmp: Bool                                 { asprintf(&$$, "%s",$1); }
 Bool: ID                                      { asprintf(&$$,"PUSHG %d\n",hashFun($1)); }
     | TRUE                                    { asprintf(&$$,"PUSHI 1\n"); }
     | FALSE                                   { asprintf(&$$,"PUSHI 0\n"); }
+    | '(' ExprBool ')'                        { asprintf(&$$,"%s",$2);}
     ;
 
 ExprCmpInt: ExprInt EQ ExprInt                { asprintf(&$$, "%s%sEQUAL\n",$1,$3); }
@@ -103,7 +104,7 @@ Termo : Fator                                 { asprintf(&$$, "%s",$1); }
 Fator : NUM                                   { asprintf(&$$,"PUSHI %d\n",$1); }
     | '-' NUM                                 { asprintf(&$$,"PUSHI -%d\n",$2); }
     | ID                                      { asprintf(&$$,"PUSHG %d\n",hashFun($1)); }
-    | '(' Expr ')'                            { asprintf(&$$,"%s",$2);}
+    | '(' ExprInt ')'                         { asprintf(&$$,"%s",$2);}
     ;
 
 
@@ -132,7 +133,7 @@ TermoF : FatorF                               { asprintf(&$$, "%s",$1); }
 FatorF : FLT                                  { asprintf(&$$,"PUSHF %d\n",$1); }
        | '-' FLT                              { asprintf(&$$,"PUSHF -%d\n",$2); }
        | ID                                   { asprintf(&$$,"PUSHF %d\n",hashFun($1)); }
-       | '(' Expr ')'                         { asprintf(&$$,"%s",$2); }
+       | '(' ExprFloat ')'                    { asprintf(&$$,"%s",$2); }
        ;
 
 
