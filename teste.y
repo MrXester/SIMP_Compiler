@@ -3,18 +3,11 @@
 #include <stdio.h>
 #include "string.h"      
 #include "lex.yy.c"
-#define HASHSZ 1024
+#include "aux.c"
 
 
-unsigned long hashFun(char *str){
-    unsigned long hash = 5381;
-    int c;
+HASH_TABLE tabID = new_hash_table();
 
-    while (c = *str++)
-        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-
-    return hash % HASHSZ;
-}
 
 %}
 
@@ -39,14 +32,11 @@ cmd : Atrib
     | Atrib cmd
     ;
 
-Atrib :  ID   '='  Expr   '\n'      { printf("%sSTOREG %d\n",$3,hashFun($1));}
+Atrib : ID    '='    ExprInt   '\n'            { aloca_variavel($1,$3,tabID,INT); }
+      | ID    '='    ExprStr   '\n'            { aloca_variavel($1,$3,tabID,STR); }
+      | ID    '='    ExprBool  '\n'            { aloca_variavel($1,$3,tabID,INT);}
+      | ID    '='    ExprFloat '\n'            { aloca_variavel($1,$3,tabID,FLT);}
       ;
-
-Expr : ExprInt                      { asprintf(&$$, "%s",$1); }
-     | ExprStr                      { asprintf(&$$, "%s",$1); }
-     | ExprBool                     { asprintf(&$$, "%s",$1); }
-     | ExprFloat                    { asprintf(&$$, "%s",$1); }
-     ;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +52,7 @@ ExprCmp: Bool                                 { asprintf(&$$, "%s",$1); }
        | ExprCmpFloat                         { asprintf(&$$, "%s",$1); }
        ;
 
-Bool: ID                                      { asprintf(&$$,"PUSHG %d\n",hashFun($1)); }
+Bool: ID                                      { fetch_var(&$$, $1, tabID, INT); }
     | TRUE                                    { asprintf(&$$,"PUSHI 1\n"); }
     | FALSE                                   { asprintf(&$$,"PUSHI 0\n"); }
     | '(' ExprBool ')'                        { asprintf(&$$,"%s",$2);}
@@ -103,7 +93,7 @@ Termo : Fator                                 { asprintf(&$$, "%s",$1); }
 
 Fator : NUM                                   { asprintf(&$$,"PUSHI %d\n",$1); }
     | '-' NUM                                 { asprintf(&$$,"PUSHI -%d\n",$2); }
-    | ID                                      { asprintf(&$$,"PUSHG %d\n",hashFun($1)); }
+    | ID                                      { fetch_var(&$$, $1, tabID, INT); }
     | '(' ExprInt ')'                         { asprintf(&$$,"%s",$2);}
     ;
 
@@ -114,7 +104,7 @@ ExprStr: FatorStr                             { asprintf(&$$, "%s",$1); }
        ;
 
 FatorStr: STR                                 { asprintf(&$$,"PUSHS %s\n",$1); }
-        | ID                                  { asprintf(&$$,"PUSHG %d\n",hashFun($1)); }
+        | ID                                  { fetch_var(&$$, $1, tabID, STR); }
         ;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -130,9 +120,9 @@ TermoF : FatorF                               { asprintf(&$$, "%s",$1); }
        ;
 
 
-FatorF : FLT                                  { asprintf(&$$,"PUSHF %d\n",$1); }
-       | '-' FLT                              { asprintf(&$$,"PUSHF -%d\n",$2); }
-       | ID                                   { asprintf(&$$,"PUSHF %d\n",hashFun($1)); }
+FatorF : FLT                                  { asprintf(&$$,"PUSHF %f\n",$1); }
+       | '-' FLT                              { asprintf(&$$,"PUSHF -%f\n",$2); }
+       | ID                                   { fetch_var(&$$, $1, tabID, FLT); }
        | '(' ExprFloat ')'                    { asprintf(&$$,"%s",$2); }
        ;
 
@@ -148,9 +138,9 @@ int yyerror(char* s){
 }
 
 int main(){
-    printf("INICIO DO PARSING\n");
+    printf("START\n");
     yyparse();
-    printf("FIM DO PARSING\n");
+    printf("STOP\n");
     return 0;
 }
 
