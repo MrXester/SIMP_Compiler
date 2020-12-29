@@ -10,10 +10,10 @@ HASH_TABLE tabID;
 %}
 
 %union{ float flt; int intg; char valC; char*string;}
-%token <intg>NUM
-%token <flt>FLT
-%token <string>ID
-%token <string>STR IDstr
+%token <intg> INT INTEGER FLOAT STRING BOOL
+%token <flt> FLT
+%token <string>ID DECLARE MAIN NOME
+%token <string> STR IDstr
 
 %token AND OR NOT
 %token EQ NE LT LE GT GE
@@ -22,9 +22,53 @@ HASH_TABLE tabID;
 %type <string> Termo Fator FatorStr ExprStr ExprInt ExprBool 
 %type <string> ExprFloat ExprCmp Bool ExprCmpInt ExprCmpStr ExprCmpFloat
 %type <string> TermoF FatorF
+%type <intg> Tipo
 
 
 %%
+
+Programa: Header Blocos Main
+        ;
+
+Header: DECLARE '{''\n' Declares '}'
+       ;
+
+Declares: Declares Declare'\n'
+        | Declare'\n'
+        ;
+
+Declare: INTEGER ID '=' ExprInt { aloca_variavel($2,$4,tabID,INTE); }
+       | FLOAT ID '=' ExprFloat { aloca_variavel($2,$4,tabID,FLOT); } 
+       | STRING ID '=' ExprStr  { aloca_variavel($2,$4,tabID,STRI); }
+       | BOOL ID '=' ExprBool   { aloca_variavel($2,$4,tabID,INTE); }
+       | Tipo ID {aloca_variavel($2,"",tabID,$1);}
+       | Tipo ID '=' Expr // levantar erro
+       ;
+
+Tipo: INTEGER  {$$ = INTE;}
+    | FLOAT    {$$ = FLOT;}
+    | STRING   {$$ = STRI;}
+    | BOOL     {$$ = INTE;}
+    ;
+
+
+Expr: ExprInt
+    | ExprStr
+    | ExprBool
+    | ExprFloat
+    ;
+
+Blocos: Blocos Bloco
+      | Bloco
+      ;
+
+Bloco: NOME '{' cmd '}'
+     |
+     ;
+
+Main: MAIN '{' cmd '}'
+    |
+    ;
 
 cmd : Atrib
     | Atrib cmd
@@ -89,8 +133,8 @@ Termo : Fator                                 { asprintf(&$$, "%s",$1); }
     ;
 
 
-Fator : NUM                                   { asprintf(&$$,"PUSHI %d\n",$1); }
-    | '-' NUM                                 { asprintf(&$$,"PUSHI -%d\n",$2); }
+Fator : INT                                   { asprintf(&$$,"PUSHI %d\n",$1); }
+    | '-' INT                                 { asprintf(&$$,"PUSHI -%d\n",$2); }
     | ID                                      { fetch_var(&$$, $1, tabID, INTE); }
     | '(' ExprInt ')'                         { asprintf(&$$,"%s",$2);}
     ;
