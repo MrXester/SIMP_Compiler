@@ -1,6 +1,6 @@
-#define INT 0
-#define FLT 1
-#define STR 2
+#define INTE 0
+#define FLOT 1
+#define STRI 2
 #define HASHSZ 1024
 
 typedef struct var_list{

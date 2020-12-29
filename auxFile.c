@@ -61,7 +61,7 @@ VAR_LIST lookup(HASH_TABLE hash_table, char* var_name){
 
 	VAR_LIST curr = hash_table->table[key];
 
-	while(strcmp(curr->name,var_name) != 0 && curr != NULL){
+	while(curr != NULL && strcmp(curr->name,var_name) != 0 ){
 		curr = curr -> prox;
 	}
 
@@ -73,7 +73,7 @@ void aloca_variavel(char* var_name, char* var_val, HASH_TABLE tabID, int type){
 	
 	if(r < 0){printf("ERROR\n");}
 	
-	else{printf("%sSTOREG %d\n",var_val,r);}
+	else{printf("PUSHI 0\n%sSTOREG %d\n",var_val,r);}
 }
 
 void fetch_var(char** instruction, char* var_name, HASH_TABLE tabID, int type){ // LEMBRAR O ERRO DO JP

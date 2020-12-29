@@ -5,9 +5,7 @@
 #include "lex.yy.c"
 #include "auxFile.c"
 
-
-HASH_TABLE tabID = new_hash_table();
-
+HASH_TABLE tabID;
 
 %}
 
@@ -21,7 +19,7 @@ HASH_TABLE tabID = new_hash_table();
 %token EQ NE LT LE GT GE
 %token TRUE FALSE
 
-%type <string> Expr Termo Fator FatorStr ExprStr ExprInt ExprBool 
+%type <string> Termo Fator FatorStr ExprStr ExprInt ExprBool 
 %type <string> ExprFloat ExprCmp Bool ExprCmpInt ExprCmpStr ExprCmpFloat
 %type <string> TermoF FatorF
 
@@ -32,10 +30,10 @@ cmd : Atrib
     | Atrib cmd
     ;
 
-Atrib : ID    '='    ExprInt   '\n'            { aloca_variavel($1,$3,tabID,INT); }
-      | ID    '='    ExprStr   '\n'            { aloca_variavel($1,$3,tabID,STR); }
-      | ID    '='    ExprBool  '\n'            { aloca_variavel($1,$3,tabID,INT);}
-      | ID    '='    ExprFloat '\n'            { aloca_variavel($1,$3,tabID,FLT);}
+Atrib : ID    '='    ExprInt   '\n'            { aloca_variavel($1,$3,tabID,INTE); }
+      | ID    '='    ExprStr   '\n'            { aloca_variavel($1,$3,tabID,STRI); }
+      | ID    '='    ExprBool  '\n'            { aloca_variavel($1,$3,tabID,INTE);}
+      | ID    '='    ExprFloat '\n'            { aloca_variavel($1,$3,tabID,FLOT);}
       ;
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +50,7 @@ ExprCmp: Bool                                 { asprintf(&$$, "%s",$1); }
        | ExprCmpFloat                         { asprintf(&$$, "%s",$1); }
        ;
 
-Bool: ID                                      { fetch_var(&$$, $1, tabID, INT); }
+Bool: ID                                      { fetch_var(&$$, $1, tabID, INTE); }
     | TRUE                                    { asprintf(&$$,"PUSHI 1\n"); }
     | FALSE                                   { asprintf(&$$,"PUSHI 0\n"); }
     | '(' ExprBool ')'                        { asprintf(&$$,"%s",$2);}
@@ -93,7 +91,7 @@ Termo : Fator                                 { asprintf(&$$, "%s",$1); }
 
 Fator : NUM                                   { asprintf(&$$,"PUSHI %d\n",$1); }
     | '-' NUM                                 { asprintf(&$$,"PUSHI -%d\n",$2); }
-    | ID                                      { fetch_var(&$$, $1, tabID, INT); }
+    | ID                                      { fetch_var(&$$, $1, tabID, INTE); }
     | '(' ExprInt ')'                         { asprintf(&$$,"%s",$2);}
     ;
 
@@ -104,7 +102,7 @@ ExprStr: FatorStr                             { asprintf(&$$, "%s",$1); }
        ;
 
 FatorStr: STR                                 { asprintf(&$$,"PUSHS %s\n",$1); }
-        | ID                                  { fetch_var(&$$, $1, tabID, STR); }
+        | ID                                  { fetch_var(&$$, $1, tabID, STRI); }
         ;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +120,7 @@ TermoF : FatorF                               { asprintf(&$$, "%s",$1); }
 
 FatorF : FLT                                  { asprintf(&$$,"PUSHF %f\n",$1); }
        | '-' FLT                              { asprintf(&$$,"PUSHF -%f\n",$2); }
-       | ID                                   { fetch_var(&$$, $1, tabID, FLT); }
+       | ID                                   { fetch_var(&$$, $1, tabID, FLOT); }
        | '(' ExprFloat ')'                    { asprintf(&$$,"%s",$2); }
        ;
 
@@ -138,6 +136,9 @@ int yyerror(char* s){
 }
 
 int main(){
+	tabID = new_hash_table();
+	int i;
+
     printf("START\n");
     yyparse();
     printf("STOP\n");
