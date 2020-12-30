@@ -3,6 +3,10 @@
 #define STRI 2
 #define HASHSZ 1024
 
+#define REALLOC 1
+#define NOALLOC 2
+#define TYPDIFF 3  
+
 typedef struct var_list{
 	char* name;
 	int type;

@@ -6,6 +6,7 @@
 #include "auxFile.c"
 
 HASH_TABLE tabID;
+int flagError;
 
 %}
 
@@ -37,12 +38,8 @@ Declares: Declares Declare'\n'
         | Declare'\n'
         ;
 
-Declare: INTEGER ID '=' ExprInt { aloca_variavel($2,$4,tabID,INTE); }
-       | FLOAT ID '=' ExprFloat { aloca_variavel($2,$4,tabID,FLOT); } 
-       | STRING ID '=' ExprStr  { aloca_variavel($2,$4,tabID,STRI); }
-       | BOOL ID '=' ExprBool   { aloca_variavel($2,$4,tabID,INTE); }
-       | Tipo ID {aloca_variavel($2,"",tabID,$1);}
-       | Tipo ID '=' Expr // levantar erro
+Declare: Atrib
+       | Var
        ;
 
 Tipo: INTEGER  {$$ = INTE;}
@@ -51,6 +48,9 @@ Tipo: INTEGER  {$$ = INTE;}
     | BOOL     {$$ = INTE;}
     ;
 
+Var : Tipo ID   {aloca(tabID,$2,$1); $$ = strdup($2);}
+    | ID        {$$ = strdup($1);}
+    ;
 
 Expr: ExprInt
     | ExprStr
@@ -74,11 +74,13 @@ cmd : Atrib
     | Atrib cmd
     ;
 
-Atrib : ID    '='    ExprInt   '\n'            { aloca_variavel($1,$3,tabID,INTE); }
-      | ID    '='    ExprStr   '\n'            { aloca_variavel($1,$3,tabID,STRI); }
-      | ID    '='    ExprBool  '\n'            { aloca_variavel($1,$3,tabID,INTE);}
-      | ID    '='    ExprFloat '\n'            { aloca_variavel($1,$3,tabID,FLOT);}
+Atrib : Var    '='    ExprInt   '\n'            { atribui($1,$3,tabID,INTE); }
+      | Var    '='    ExprStr   '\n'            { atribui($1,$3,tabID,STRI); }
+      | Var    '='    ExprBool  '\n'            { atribui($1,$3,tabID,INTE); }
+      | Var    '='    ExprFloat '\n'            { atribui($1,$3,tabID,FLOT); }
       ;
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -197,8 +199,5 @@ int main(){
 //    | Expr GT Expr          {  } 
 //    | Expr GE Expr          {  }  
 //;
-
-
-
 
 

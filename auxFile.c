@@ -36,25 +36,53 @@ HASH_TABLE new_hash_table(){
    return new;
 }
 
-int insert(HASH_TABLE hash_table, char* var_name, int type){
+void aloca(HASH_TABLE hash_table, char* var_name, int type){
 	int key = (int) hashFun(var_name);
-	int r = -1;
 	VAR_LIST elem = lookup(hash_table,var_name);
 
-	if( elem != NULL && type == elem->type){
-			r = elem->pos;
+	if( elem != NULL){
+		flagError = REALLOC;
 	}
 
 	else{
-		
 		VAR_LIST allocate = new_list(var_name, type, hash_table->used);
 		allocate->prox = hash_table->table[key];
 		hash_table->table[key] = allocate;
 		hash_table->used++;
-		r = allocate -> pos;
-    }
-    return r;
+	}
+
+	switch(type){
+		case FLOT:
+		printf("PUSHF 0\n");
+		break;
+
+		case STRI:
+		printf("PUSHS \"\\0\"\n");
+		break;
+
+		default:
+		printf("PUSHI 0\n");
+		break;
+	}
 }
+
+
+void atribui(char* var_name, char*inst_var_val, HASH_TABLE tabID, int type){
+	VAR_LIST elem = lookup(hash_table,var_name);
+	if (elem == NULL){
+		flagError = NOALLOC;
+		return;
+	}
+
+	if (elem -> type != type){
+		flagError = TYPDIFF;
+		return;
+	}	
+
+	printf("%sSTOREG %d\n",inst_var_val,elem->pos);
+}
+
+
 
 VAR_LIST lookup(HASH_TABLE hash_table, char* var_name){
 	int key = (int) hashFun(var_name);
@@ -68,19 +96,23 @@ VAR_LIST lookup(HASH_TABLE hash_table, char* var_name){
 	return curr;
 }
 
-void aloca_variavel(char* var_name, char* var_val, HASH_TABLE tabID, int type){
-	int r = insert(tabID,var_name,type);
-	
-	if(r < 0){printf("ERROR\n");}
-	
-	else{printf("PUSHI 0\n%sSTOREG %d\n",var_val,r);}
-}
 
-void fetch_var(char** instruction, char* var_name, HASH_TABLE tabID, int type){ // LEMBRAR O ERRO DO JP
-	VAR_LIST r = lookup(tabID,var_name);
-	if(r != NULL){
-		asprintf(instruction, "PUSHG %d\n", r->pos);
+
+void fetch_var(char** instruction, char* var_name, HASH_TABLE tabID, int type){
+	VAR_LIST elem = lookup(tabID,var_name);
+
+	if (elem == NULL){
+		flagError = NOALLOC;
+		return;
 	}
 
-	//else {raise error}
+	if (elem -> type != type){
+		flagError = TYPDIFF;
+		return;
+	}	
+
+
+	asprintf(instruction, "PUSHG %d\n", r->pos);
 }
+
+
