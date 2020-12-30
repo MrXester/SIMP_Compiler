@@ -36,12 +36,14 @@ HASH_TABLE new_hash_table(){
    return new;
 }
 
-void aloca(HASH_TABLE hash_table, char* var_name, int type){
+void aloca(HASH_TABLE hash_table, char* var_name, int type, int *flagError){
 	int key = (int) hashFun(var_name);
 	VAR_LIST elem = lookup(hash_table,var_name);
 
 	if( elem != NULL){
-		flagError = REALLOC;
+		printf("REALLOC\n");
+		*flagError = REALLOC;
+		return;
 	}
 
 	else{
@@ -67,15 +69,17 @@ void aloca(HASH_TABLE hash_table, char* var_name, int type){
 }
 
 
-void atribui(char* var_name, char*inst_var_val, HASH_TABLE tabID, int type){
-	VAR_LIST elem = lookup(hash_table,var_name);
+void atribui(char* var_name, char*inst_var_val, HASH_TABLE tabID, int type, int *flagError){
+	VAR_LIST elem = lookup(tabID,var_name);
 	if (elem == NULL){
-		flagError = NOALLOC;
+		printf("NOALLOC\n");
+		*flagError = NOALLOC;
 		return;
 	}
 
 	if (elem -> type != type){
-		flagError = TYPDIFF;
+		printf("TYPDIFF\n");
+		*flagError = TYPDIFF;
 		return;
 	}	
 
@@ -98,21 +102,23 @@ VAR_LIST lookup(HASH_TABLE hash_table, char* var_name){
 
 
 
-void fetch_var(char** instruction, char* var_name, HASH_TABLE tabID, int type){
+void fetch_var(char** instruction, char* var_name, HASH_TABLE tabID, int type, int *flagError){
 	VAR_LIST elem = lookup(tabID,var_name);
 
 	if (elem == NULL){
-		flagError = NOALLOC;
+		printf("NOALLOC\n");
+		*flagError = NOALLOC;
 		return;
 	}
 
 	if (elem -> type != type){
-		flagError = TYPDIFF;
+		printf("TYPDIFF\n");
+		*flagError = TYPDIFF;
 		return;
 	}	
 
 
-	asprintf(instruction, "PUSHG %d\n", r->pos);
+	asprintf(instruction, "PUSHG %d\n", elem->pos);
 }
 
 

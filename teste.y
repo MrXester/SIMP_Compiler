@@ -6,8 +6,9 @@
 #include "auxFile.c"
 
 HASH_TABLE tabID;
-int flagError;
+int flagError = 0;
 
+int yydebug = 1;
 %}
 
 %union{ float flt; int intg; char valC; char*string;}
@@ -20,7 +21,7 @@ int flagError;
 %token EQ NE LT LE GT GE
 %token TRUE FALSE
 
-%type <string> Termo Fator FatorStr ExprStr ExprInt ExprBool 
+%type <string> Termo Fator FatorStr ExprStr ExprInt ExprBool Var
 %type <string> ExprFloat ExprCmp Bool ExprCmpInt ExprCmpStr ExprCmpFloat
 %type <string> TermoF FatorF
 %type <intg> Tipo
@@ -28,18 +29,18 @@ int flagError;
 
 %%
 
-Programa: Header Blocos Main
+Programa: Header
         ;
 
-Header: DECLARE '{''\n' Declares '}'
-       ;
+Header: DECLARE '{''\n' Declares '}''\n'
+      ;
 
-Declares: Declares Declare'\n'
-        | Declare'\n'
+Declares: Declares Declare
+        | Declare
         ;
 
-Declare: Atrib
-       | Var
+Declare: Atrib '\n'
+       | Var '\n'
        ;
 
 Tipo: INTEGER  {$$ = INTE;}
@@ -48,7 +49,7 @@ Tipo: INTEGER  {$$ = INTE;}
     | BOOL     {$$ = INTE;}
     ;
 
-Var : Tipo ID   {aloca(tabID,$2,$1); $$ = strdup($2);}
+Var : Tipo ID   {aloca(tabID,$2,$1,&flagError); $$ = strdup($2);}
     | ID        {$$ = strdup($1);}
     ;
 
@@ -74,10 +75,10 @@ cmd : Atrib
     | Atrib cmd
     ;
 
-Atrib : Var    '='    ExprInt   '\n'            { atribui($1,$3,tabID,INTE); }
-      | Var    '='    ExprStr   '\n'            { atribui($1,$3,tabID,STRI); }
-      | Var    '='    ExprBool  '\n'            { atribui($1,$3,tabID,INTE); }
-      | Var    '='    ExprFloat '\n'            { atribui($1,$3,tabID,FLOT); }
+Atrib : Var    '='    ExprInt               { atribui($1,$3,tabID,INTE,&flagError); }
+      | Var    '='    ExprStr               { atribui($1,$3,tabID,STRI,&flagError); }
+      | Var    '='    ExprBool              { atribui($1,$3,tabID,INTE,&flagError); }
+      | Var    '='    ExprFloat             { atribui($1,$3,tabID,FLOT,&flagError); }
       ;
 
 
@@ -96,7 +97,7 @@ ExprCmp: Bool                                 { asprintf(&$$, "%s",$1); }
        | ExprCmpFloat                         { asprintf(&$$, "%s",$1); }
        ;
 
-Bool: ID                                      { fetch_var(&$$, $1, tabID, INTE); }
+Bool: ID                                      { fetch_var(&$$, $1, tabID, INTE,&flagError); }
     | TRUE                                    { asprintf(&$$,"PUSHI 1\n"); }
     | FALSE                                   { asprintf(&$$,"PUSHI 0\n"); }
     | '(' ExprBool ')'                        { asprintf(&$$,"%s",$2);}
@@ -137,7 +138,7 @@ Termo : Fator                                 { asprintf(&$$, "%s",$1); }
 
 Fator : INT                                   { asprintf(&$$,"PUSHI %d\n",$1); }
     | '-' INT                                 { asprintf(&$$,"PUSHI -%d\n",$2); }
-    | ID                                      { fetch_var(&$$, $1, tabID, INTE); }
+    | ID                                      { fetch_var(&$$, $1, tabID, INTE,&flagError); }
     | '(' ExprInt ')'                         { asprintf(&$$,"%s",$2);}
     ;
 
@@ -148,7 +149,7 @@ ExprStr: FatorStr                             { asprintf(&$$, "%s",$1); }
        ;
 
 FatorStr: STR                                 { asprintf(&$$,"PUSHS %s\n",$1); }
-        | ID                                  { fetch_var(&$$, $1, tabID, STRI); }
+        | ID                                  { fetch_var(&$$, $1, tabID, STRI,&flagError); if (flagError) return; }
         ;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -166,7 +167,7 @@ TermoF : FatorF                               { asprintf(&$$, "%s",$1); }
 
 FatorF : FLT                                  { asprintf(&$$,"PUSHF %f\n",$1); }
        | '-' FLT                              { asprintf(&$$,"PUSHF -%f\n",$2); }
-       | ID                                   { fetch_var(&$$, $1, tabID, FLOT); }
+       | ID                                   { fetch_var(&$$, $1, tabID, FLOT,&flagError); }
        | '(' ExprFloat ')'                    { asprintf(&$$,"%s",$2); }
        ;
 
