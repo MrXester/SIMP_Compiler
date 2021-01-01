@@ -29,6 +29,8 @@
 ">="				{return GE;}
 ">"					{return GT;}
 "not"				{return NOT;}
+"read"				{return READ;}
+"write"				{return WRITE;}
 [a-zA-Z]+			{yylval.string = strdup(yytext);return ID;}
 \"([^\"]|\\\")*\"	{yylval.string = strdup(yytext);return STR;}
 \n 					{return '\n';} 

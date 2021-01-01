@@ -20,6 +20,7 @@ int yydebug = 1;
 %token AND OR NOT
 %token EQ NE LT LE GT GE
 %token TRUE FALSE
+%token READ WRITE
 
 %type <string> Termo Fator FatorStr ExprStr ExprInt ExprBool Var
 %type <string> ExprFloat ExprCmp Bool ExprCmpInt ExprCmpStr ExprCmpFloat
@@ -29,10 +30,10 @@ int yydebug = 1;
 
 %%
 
-Programa: Header
+Programa: Header '\n' Main
         ;
 
-Header: DECLARE '{''\n' Declares '}''\n'
+Header: DECLARE '{''\n' Declares '}'
       ;
 
 Declares: Declares Declare
@@ -63,23 +64,41 @@ Blocos: Blocos Bloco
       | Bloco
       ;
 
-Bloco: NOME '{' cmd '}'
+Bloco: NOME '{' Cmd '}'
      |
      ;
 
-Main: MAIN '{' cmd '}'
-    |
+Main: MAIN '{''\n' Cmds '}' { asprintf(&$$,"START\n%s",$4); }
     ;
 
-cmd : Atrib
-    | Atrib cmd
+Cmds : Cmd
+     | Cmds Cmd
+     ;
+
+Cmd : Atrib '\n'
+    | Read '\n'
+    | Write '\n' 
+//    | Condic 
+//    | Repeat
     ;
 
-Atrib : Var    '='    ExprInt               { atribui($1,$3,tabID,INTE,&flagError); }
+Atrib : Var    '='    ID                    { printf("bruh"); } 
+      | Var    '='    ExprInt               { atribui($1,$3,tabID,INTE,&flagError); }
       | Var    '='    ExprStr               { atribui($1,$3,tabID,STRI,&flagError); }
       | Var    '='    ExprBool              { atribui($1,$3,tabID,INTE,&flagError); }
       | Var    '='    ExprFloat             { atribui($1,$3,tabID,FLOT,&flagError); }
       ;
+
+Write: WRITE '(' ID ')'                     { escreve($3, tabID, &flagError); }
+     | WRITE '(' ExprInt ')'                { asprintf(&$$,"%sWRITEI\n", $3); }  
+     | WRITE '(' ExprStr ')'                { asprintf(&$$,"%sWRITES\n", $3); }
+     | WRITE '(' ExprFloat ')'              { asprintf(&$$,"%sWRITEF\n", $3); }
+     | WRITE '(' ExprBool ')'               { asprintf(&$$,"%sWRITEI\n", $3); }
+     ;
+
+Read: READ '(' ID ')'                       { le($3, tabID,&flagError); }
+    ;
+
 
 
 
@@ -94,7 +113,7 @@ ExprBool: ExprCmp                             { asprintf(&$$, "%s",$1); }
 ExprCmp: Bool                                 { asprintf(&$$, "%s",$1); }
        | ExprCmpInt                           { asprintf(&$$, "%s",$1); }
        | ExprCmpStr                           { asprintf(&$$, "%s",$1); }
-       | ExprCmpFloat                         { asprintf(&$$, "%s",$1); }
+//       | ExprCmpFloat                         { asprintf(&$$, "%s",$1); }
        ;
 
 Bool: ID                                      { fetch_var(&$$, $1, tabID, INTE,&flagError); }
@@ -145,7 +164,7 @@ Fator : INT                                   { asprintf(&$$,"PUSHI %d\n",$1); }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 ExprStr: FatorStr                             { asprintf(&$$, "%s",$1); }
-       | ExprStr '+' FatorStr                 { asprintf(&$$,"%s%sCONCAT\n",$1,$3); }
+       | ExprStr '#' FatorStr                 { asprintf(&$$,"%s%sCONCAT\n",$1,$3); }
        ;
 
 FatorStr: STR                                 { asprintf(&$$,"PUSHS %s\n",$1); }
@@ -153,7 +172,7 @@ FatorStr: STR                                 { asprintf(&$$,"PUSHS %s\n",$1); }
         ;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-
+//
 ExprFloat: TermoF                             { asprintf(&$$, "%s",$1); }
          | ExprFloat '+' TermoF               { asprintf(&$$, "%s%sFADD\n",$1,$3); }
          | ExprFloat '-' TermoF               { asprintf(&$$, "%s%sFSUB\n",$1,$3); }
@@ -179,14 +198,12 @@ FatorF : FLT                                  { asprintf(&$$,"PUSHF %f\n",$1); }
 
 
 int yyerror(char* s){
-    printf("Frase invalida: %s\n",s);
+  printf("Frase invalida: %s\n",s);
 }
 
 int main(){
 	tabID = new_hash_table();
 	int i;
-
-    printf("START\n");
     yyparse();
     printf("STOP\n");
     return 0;

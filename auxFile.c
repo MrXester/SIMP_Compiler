@@ -122,3 +122,51 @@ void fetch_var(char** instruction, char* var_name, HASH_TABLE tabID, int type, i
 }
 
 
+void escreve(char* var_name, HASH_TABLE tabID, int *flagError){
+	VAR_LIST elem = lookup(tabID,var_name);
+
+	if (elem == NULL){
+		printf("NOALLOC\n");
+		*flagError = NOALLOC;
+		return;
+	}
+
+
+	switch(elem -> type){
+		case FLOT:
+		printf("PUSHG %d\nWRITEF\n", elem->pos);
+		break;
+
+		case STRI:
+		printf("PUSHG %d\nWRITES\n", elem->pos);
+		break;
+
+		default:
+		printf("PUSHG %d\nWRITEI\n", elem->pos);
+		break;
+	}
+}
+
+void le(char* var_name, HASH_TABLE tabID, int *flagError){
+	VAR_LIST elem = lookup(tabID,var_name);
+
+	if (elem == NULL){
+		printf("NOALLOC\n");
+		*flagError = NOALLOC;
+		return;
+	}
+
+	switch(elem -> type){
+		case FLOT:
+		printf("READ\nATOF\nSTOREG %d\n", elem->pos);
+		break;
+
+		case STRI:
+		printf("READ\nSTOREG %d\n", elem->pos);
+		break;
+
+		default:
+		printf("READ\nATOI\nSTOREG %d\n", elem->pos);
+		break;
+	}
+}
