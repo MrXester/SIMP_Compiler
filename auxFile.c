@@ -10,11 +10,10 @@ unsigned long hashFun(char *str){
     return hash % HASHSZ;
 }
 
-VAR_LIST new_list(char* name, int type, int pos){
+VAR_LIST new_list(char* name, int pos){
 	VAR_LIST new = (VAR_LIST) malloc(sizeof(struct var_list));
 
 	new -> name = strdup(name);
-	new -> type = type;
 	new -> pos = pos;
 	new -> prox = NULL;
 
@@ -36,7 +35,7 @@ HASH_TABLE new_hash_table(){
    return new;
 }
 
-void aloca(HASH_TABLE hash_table, char* var_name, int type, int *flagError){
+void aloca(char**instruction,HASH_TABLE hash_table, char* var_name, int *flagError){
 	int key = (int) hashFun(var_name);
 	VAR_LIST elem = lookup(hash_table,var_name);
 
@@ -46,44 +45,25 @@ void aloca(HASH_TABLE hash_table, char* var_name, int type, int *flagError){
 		return;
 	}
 
-	else{
-		VAR_LIST allocate = new_list(var_name, type, hash_table->used);
-		allocate->prox = hash_table->table[key];
-		hash_table->table[key] = allocate;
-		hash_table->used++;
-	}
 
-	switch(type){
-		case FLOT:
-		printf("PUSHF 0\n");
-		break;
+	VAR_LIST allocate = new_list(var_name, hash_table->used);
+	allocate->prox = hash_table->table[key];
+	hash_table->table[key] = allocate;
+	hash_table->used++;
+	asprintf(instruction,"PUSHI 0\n");
 
-		case STRI:
-		printf("PUSHS \"\\0\"\n");
-		break;
-
-		default:
-		printf("PUSHI 0\n");
-		break;
-	}
 }
 
 
-void atribui(char* var_name, char*inst_var_val, HASH_TABLE tabID, int type, int *flagError){
+void atribui(char**instruction, char* var_name, char*inst_var_val, HASH_TABLE tabID, int *flagError){
 	VAR_LIST elem = lookup(tabID,var_name);
 	if (elem == NULL){
 		printf("NOALLOC\n");
 		*flagError = NOALLOC;
 		return;
-	}
-
-	if (elem -> type != type){
-		printf("TYPDIFF\n");
-		*flagError = TYPDIFF;
-		return;
 	}	
 
-	printf("%sSTOREG %d\n",inst_var_val,elem->pos);
+	asprintf(instruction,"%sSTOREG %d\n",inst_var_val,elem->pos);
 }
 
 
@@ -102,7 +82,7 @@ VAR_LIST lookup(HASH_TABLE hash_table, char* var_name){
 
 
 
-void fetch_var(char** instruction, char* var_name, HASH_TABLE tabID, int type, int *flagError){
+void fetch_var(char** instruction, char* var_name, HASH_TABLE tabID, int *flagError){
 	VAR_LIST elem = lookup(tabID,var_name);
 
 	if (elem == NULL){
@@ -110,19 +90,12 @@ void fetch_var(char** instruction, char* var_name, HASH_TABLE tabID, int type, i
 		*flagError = NOALLOC;
 		return;
 	}
-
-	if (elem -> type != type){
-		printf("TYPDIFF\n");
-		*flagError = TYPDIFF;
-		return;
-	}	
-
 
 	asprintf(instruction, "PUSHG %d\n", elem->pos);
 }
 
 
-void escreve(char* var_name, HASH_TABLE tabID, int *flagError){
+void escreve(char** instruction, char* var_name, HASH_TABLE tabID, int *flagError){
 	VAR_LIST elem = lookup(tabID,var_name);
 
 	if (elem == NULL){
@@ -131,23 +104,10 @@ void escreve(char* var_name, HASH_TABLE tabID, int *flagError){
 		return;
 	}
 
-
-	switch(elem -> type){
-		case FLOT:
-		printf("PUSHG %d\nWRITEF\n", elem->pos);
-		break;
-
-		case STRI:
-		printf("PUSHG %d\nWRITES\n", elem->pos);
-		break;
-
-		default:
-		printf("PUSHG %d\nWRITEI\n", elem->pos);
-		break;
-	}
+	asprintf(instruction, "PUSHG %d\nWRITEI\n", elem->pos);
 }
 
-void le(char* var_name, HASH_TABLE tabID, int *flagError){
+void le(char**instruction,char* var_name, HASH_TABLE tabID, int *flagError){
 	VAR_LIST elem = lookup(tabID,var_name);
 
 	if (elem == NULL){
@@ -156,17 +116,6 @@ void le(char* var_name, HASH_TABLE tabID, int *flagError){
 		return;
 	}
 
-	switch(elem -> type){
-		case FLOT:
-		printf("READ\nATOF\nSTOREG %d\n", elem->pos);
-		break;
 
-		case STRI:
-		printf("READ\nSTOREG %d\n", elem->pos);
-		break;
-
-		default:
-		printf("READ\nATOI\nSTOREG %d\n", elem->pos);
-		break;
-	}
+	asprintf(instruction, "READ\nATOI\nSTOREG %d\n", elem->pos);
 }

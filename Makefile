@@ -1,5 +1,5 @@
 #objective
-EXEC = teste# <==== nome do arquivo a ser gerado, os demais arquivos em flex e yacc deverão estar em função deste nome, i.e., "calc.y"  "calc.l" 
+EXEC = review# <==== nome do arquivo a ser gerado, os demais arquivos em flex e yacc deverão estar em função deste nome, i.e., "calc.y"  "calc.l" 
 CFLAGS = -Wall#flags <===== altere aqui as flags de sua preferência para o GCC
 
 

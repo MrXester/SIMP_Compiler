@@ -1,0 +1,14 @@
+declare{
+	x,y,z
+	u
+}
+
+
+
+main{
+	x = 1
+	y = 2
+	u = x + y
+	read(u)
+	write(y)
+}

@@ -1,0 +1,28 @@
+
+
+
+declare{
+x,y,z
+u,v,w
+a
+b
+c
+plc
+}
+
+
+
+
+
+
+
+
+
+main{
+x = 3
+y = 2
+z = 1
+a = 4
+plc = 3*2+1/4
+u = v + plc
+}
