@@ -23,17 +23,17 @@ extern int yylineno;
 
 
 %%
-Programa: Spacing Header Spacing Main Spacing { printf("%s%s",$2,$4); }
+Programa: Header Main           { printf("%s%s",$1,$2); }
         ;
 
 Spacing:
 	   | '\n' Spacing
 	   ;
 
-Header: DECLARE '{' Spacing ListIds Spacing '}' {$$ = strdup($4);}
+Header: DECLARE '{' ListIds '}' {$$ = strdup($3);}
       ;
 
-ListIds: ListIds Spacing ListId    				{ asprintf(&$$, "%s%s", $1,$3); }
+ListIds: ListIds ListId    				  { asprintf(&$$, "%s%s", $1,$2); }
 	   | ListId		            				{ $$ = strdup($1); }
 	   ;
 
@@ -43,25 +43,25 @@ ListId: ID 										{ aloca(&$$,tabID,$1,&flagError); }
 	  ;
 
 
-Main: MAIN '{' Spacing Cmds '}' 				{ asprintf(&$$,"START\n%s",$4); }
+Main: MAIN '{' Cmds '}' 				{ asprintf(&$$,"START\n%s",$3); }
     ;
 
 
 Cmds : Cmd  									{ $$ = strdup($1); }
-     | Cmds Spacing Cmd 						{ asprintf(&$$, "%s%s", $1,$2); }
+     | Cmds Cmd 						  { asprintf(&$$, "%s%s", $1,$2); }
      ;
 
 
-Cmd : Atrib '\n'            						{ $$ = strdup($1); }
-    | Read  '\n'									{ $$ = strdup($1); }
-    | Write '\n' 									{ $$ = strdup($1); }
-    | Condic 										{}
+Cmd : Atrib             						{ $$ = strdup($1); }
+    | Read  									      { $$ = strdup($1); }
+    | Write 									      { $$ = strdup($1); }
+//    | Condic 										   {}
 //    | Repeat
     ;
 
 
-Condic: IF ExprCmpInt THEN Spacing '{' Spacing Cmds Spacing '}' Spacing ELSE '{' Spacing Cmds Spacing '}' {asprintf()} 
-printf(" expr (JUMPZ E0) Cmds (JUMP E1) .E0 Cmds .E1")
+//Condic: IF ExprCmpInt THEN Spacing '{' Spacing Cmds Spacing '}' Spacing ELSE '{' Spacing Cmds Spacing '}' {asprintf()} 
+//printf(" expr (JUMPZ E0) Cmds (JUMP E1) .E0 Cmds .E1")
 
 Atrib : ID    '='    ExprCmpInt              	{ atribui(&$$,$1,$3,tabID,&flagError); }
       ;

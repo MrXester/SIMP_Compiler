@@ -1,14 +1,28 @@
+~ isso não, bruh
 declare{
-	x,y,z
-	u
+	x,y,z 
+	u,k
+	plc
+
 }
 
-
+~/
+isso é um comentário multi linha ~ /
+~~  / ~
+/~
 
 main{
-	x = 1
+	x = 1 
+	x = 2
 	y = 2
 	u = x + y
 	read(u)
 	write(y)
 }
+
+~/
+isso é um comentário multi linha
+/~
+
+~ isso não é um comentário multi linha
+
