@@ -8,6 +8,7 @@
 
 int flagError = 0;
 HASH_TABLE tabID;
+int tag_num = 0;
 
 extern int yylineno;
 
@@ -16,10 +17,11 @@ extern int yylineno;
 %union{ int intg; char*string;}
 %token AND OR NOT
 %token EQ NE LT LE GT GE
-%token TRUE FALSE 
-%token <string> DECLARE ID MAIN INT WRITE READ
+%token TRUE FALSE IF THEN ELSE REPEAT UNTIL
+%token <string> DECLARE ID MAIN WRITE READ SKIP
+%token <intg> INT
 
-%type <string> Header ListIds ListId Main Cmds Cmd Atrib Write Read ExprCmpInt ExprInt Termo Fator
+%type <string> Header ListIds ListId Main Cmds Cmd Atrib Write Read ExprCmpInt ExprInt Termo Fator Condic Repeat Identificador
 
 
 %%
@@ -34,10 +36,13 @@ ListIds: ListIds ListId    				  { asprintf(&$$, "%s%s", $1,$2); }
 	   ;
 
 
-ListId: ID 										       { aloca(&$$,tabID,$1,&flagError); }
-	  | ListId ',' ID 							   { aloca(&$$,tabID,$3,&flagError); asprintf(&$$,"%s%s",$$,$1);}
+ListId: Identificador									       
+	  | ListId ',' Identificador			{ asprintf(&$$,"%s%s",$1,$3);}
 	  ;
 
+Identificador: ID                      			{ aloca(&$$,tabID,$1,INTEG,1,&flagError); }
+			 | ID'['INT']' 						{ aloca(&$$,tabID,$1,ARRAY,$3,&flagError);}
+			 ;
 
 Main: MAIN '{' Cmds '}' 				     { asprintf(&$$,"START\n%s",$3); }
     ;
@@ -51,15 +56,20 @@ Cmds : Cmd  									       { $$ = strdup($1); }
 Cmd : Atrib             						  { $$ = strdup($1); }
     | Read  									        { $$ = strdup($1); }
     | Write 									        { $$ = strdup($1); }
-//    | Condic 										   {}
-//    | Repeat
+	| Condic 										   {$$ = strdup($1);}
+	| Repeat									{$$ = strdup($1);}
+	| SKIP
     ;
 
 
-//Condic: IF ExprCmpInt THEN Spacing '{' Spacing Cmds Spacing '}' Spacing ELSE '{' Spacing Cmds Spacing '}' {asprintf()} 
-//printf(" expr (JUMPZ E0) Cmds (JUMP E1) .E0 Cmds .E1")
+Condic: IF ExprCmpInt THEN  '{'  Cmds  '}'  ELSE '{'  Cmds  '}' {asprintf(&$$,"%sJZ E%d\n%sJUMP E%d\nE%d:\n%sE%d:\n",$2, tag_num, $5,tag_num+1,tag_num,$9,tag_num+1);tag_num += 2;} 
+      ;
 
-Atrib : ID    '='    ExprCmpInt              	    { atribui(&$$,$1,$3,tabID,&flagError); }
+Repeat: REPEAT '{' Cmds '}' UNTIL ExprCmpInt {asprintf(&$$,"E%d:\n%s%sJZ E%d\n", tag_num, $3, $6, tag_num); tag_num++;}
+      ;
+
+Atrib : ID    '='    ExprCmpInt              	    { atribui(&$$,$1,$3,"",tabID,INTEG,&flagError); }
+      | ID'['ExprInt']' '=' ExprCmpInt 				{ atribui(&$$,$1,$6,$3,tabID,ARRAY,&flagError);}
       ;
 
 
@@ -67,7 +77,8 @@ Write: WRITE '(' ExprCmpInt ')'                	   { asprintf(&$$,"%sWRITEI\n", 
      ;
 
 
-Read: READ '(' ID ')'                       	     { le(&$$,$3, tabID,&flagError); }
+Read: READ '(' ID ')'                       	     { le(&$$,$3,INTEG,"",tabID,&flagError); }
+    | READ '(' ID '['ExprInt']' ')'                  { le(&$$,$3,ARRAY,$5,tabID,&flagError); }
     ;
 
 
@@ -100,7 +111,8 @@ Fator : INT                                   { asprintf(&$$,"PUSHI %d\n",$1); }
     | '-' INT                                 { asprintf(&$$,"PUSHI -%d\n",$2); }
     | TRUE									                  { asprintf(&$$,"PUSHI 1\n"); }
     | FALSE									                  { asprintf(&$$,"PUSHI 0\n"); }
-    | ID                                      { fetch_var(&$$, $1, tabID, &flagError); }
+    | ID                                      { fetch_var(&$$,$1,INTEG,"",tabID,&flagError); }
+    | ID '['ExprInt']'						  { fetch_var(&$$, $1,ARRAY,$3,tabID,&flagError); }
     | '(' ExprCmpInt ')'                      { asprintf(&$$,"%s",$2);}
     ;
 

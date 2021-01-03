@@ -1,0 +1,19 @@
+declare{
+	array[5],N
+}
+
+main{
+
+	N = 5
+
+	repeat{
+		read(array[N-1])
+		N = N - 1
+	}until N == 0
+
+	repeat{
+		write(array[N])
+		N = N + 1
+	}until N == 5
+	
+}

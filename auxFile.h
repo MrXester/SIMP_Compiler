@@ -5,11 +5,15 @@
 
 #define REALLOC 1
 #define NOALLOC 2
-#define TYPDIFF 3  
+#define TYPDIFF 3
+
+#define INTEG 1
+#define ARRAY 2
 
 typedef struct var_list{
 	char* name;
 	int pos;
+	int type;
 	struct var_list* prox;
 }*VAR_LIST;
 
