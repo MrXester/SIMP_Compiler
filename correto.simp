@@ -2,7 +2,6 @@
 declare{
 	x,y,z 
 	u,k ~ lmao
-
 	plc
 
 }
@@ -15,10 +14,11 @@ isso é um comentário multi linha ~ /
 
 main{
 	x = 1 
-	x = 2
+	x = 2 
 	y = 2
 	u = x + y
 	z = (k + 1) % y
+	bruh()
 	read(u)
 	write(y)
 }
@@ -28,4 +28,64 @@ isso é um comentário multi linha
 /~
 
 ~ isso não é um comentário multi linha
+~/
+////////////////////////////////////
+if(cond) 
+then{
+	cmdsA
+}
+else{
+	cmdsB
+}
 
+
+translation(cond)
+JZ E0
+translation(cmdsA)
+JMP E1
+E0:
+translation(cmdsB)
+E1:
+////////////////////////////////////
+
+repeat{
+	cmds
+}until(cond)
+
+E0:
+translation(cmds)
+translation(cond)
+JZ E0
+
+///////////////////////////////////
+
+while(cond){
+	cmds
+}
+
+E0:
+translation(cond)
+JZ E1
+translation(cmds)
+JMP E0
+E1:
+
+//////////////////////////////////
+
+
+for (start; cond; maint){
+	cmds
+}
+
+translation(start)
+E0:
+translation(cond)
+JZ E1
+translation(cmds)
+translation(maint)
+JMP E0
+E1:
+
+/////////////////////////////////
+
+/~
