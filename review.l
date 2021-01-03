@@ -11,13 +11,19 @@
 
 %%
 
-[+\-*/()=\{\},%]						{return yytext[0];}
+[+\-*/()=\{\},%\[\]]						{return yytext[0];}
 (?i:false)								{return FALSE;}
 (?i:true)								{return TRUE;}
 (?i:or)									{return OR;}
 (?i:and)								{return AND;}
 (?i:main)           					{return MAIN;}
 (?i:declare)        					{return DECLARE;}
+(?i:if)                                 {return IF;}
+(?i:then)                               {return THEN;}
+(?i:else)                               {return ELSE;}
+(?i:repeat)                             {return REPEAT;}
+(?i:until)                              {return UNTIL;}
+(?i:skip)                               {return SKIP;}
 "=="									{return EQ;}
 "!="									{return NE;}
 "<="									{return LE;}

@@ -1,0 +1,35 @@
+declare{
+	cont, curr, N
+}
+
+main{
+
+	N = 5
+	
+	cont = 0
+
+	repeat {
+
+		read(curr)
+
+		if curr % 2 == 1 then{
+			
+			write(curr)
+
+			cont = cont + 1
+		
+		}
+
+		else {
+		
+			cont = cont
+		
+		}
+
+		N = N - 1
+
+	} until N == 0
+	
+
+	write(cont)
+}

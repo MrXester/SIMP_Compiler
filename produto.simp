@@ -1,0 +1,24 @@
+declare{
+	accum
+	N
+	curr
+}
+
+main{
+	
+	N = 5
+
+	accum = 1
+
+	repeat {
+		
+		read(curr)
+
+		accum = accum * curr
+
+		N = N - 1
+
+	} until N == 0
+
+	write(accum)
+}

@@ -1,0 +1,37 @@
+declare{
+	N,men,curr,i
+}
+
+main{
+	read(N)
+	i = 0
+
+	repeat{
+
+		read(curr)
+
+		if i == 0 then {
+
+			men = curr
+
+		}
+
+		else{
+
+			if men > curr then {
+
+				men = curr
+
+			}
+
+			else {
+				men = men
+			}
+		}
+
+		i = i + 1
+
+	} until i == N
+
+	write(men)
+}

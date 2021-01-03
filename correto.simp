@@ -1,9 +1,8 @@
 ~ isso não, bruh
 declare{
-	x,y,z 
-	u,k ~ lmao
-	plc
-
+	x,y
+	i
+	fib[30],banana[24]
 }
 
 ~/
@@ -13,14 +12,26 @@ isso é um comentário multi linha ~ /
 
 
 main{
-	x = 1 
-	x = 2 
-	y = 2
-	u = x + y
-	z = (k + 1) % y
-	bruh()
-	read(u)
-	write(y)
+	i = 2
+	
+	fib[0] = 1
+	fib[1] = 1
+
+	repeat {
+
+		fib[i] = fib[i-1] + fib[i-2]
+
+
+		i = i + 1
+
+	} until i == 30
+	
+    i = i - 1
+
+    repeat {
+    	write(fib[i])
+    	i = i - 1
+    } until i == -1
 }
 
 ~/
