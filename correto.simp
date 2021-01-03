@@ -1,7 +1,8 @@
 ~ isso não, bruh
 declare{
 	x,y,z 
-	u,k
+	u,k ~ lmao
+
 	plc
 
 }
@@ -11,11 +12,13 @@ isso é um comentário multi linha ~ /
 ~~  / ~
 /~
 
+
 main{
 	x = 1 
 	x = 2
 	y = 2
 	u = x + y
+	z = (k + 1) % y
 	read(u)
 	write(y)
 }

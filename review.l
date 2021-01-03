@@ -11,7 +11,7 @@
 
 %%
 
-[+\-*/()=\{\},]						    {return yytext[0];}
+[+\-*/()=\{\},%]						{return yytext[0];}
 (?i:false)								{return FALSE;}
 (?i:true)								{return TRUE;}
 (?i:or)									{return OR;}
