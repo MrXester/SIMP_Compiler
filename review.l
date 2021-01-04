@@ -19,6 +19,8 @@
 (?i:main)           					{return MAIN;}
 (?i:declare)        					{return DECLARE;}
 (?i:if)                                 {return IF;}
+(?i:WHILE)                              {return WHILE;}
+(?i:FOR)                                 {return FOR;}
 (?i:then)                               {return THEN;}
 (?i:else)                               {return ELSE;}
 (?i:repeat)                             {return REPEAT;}
