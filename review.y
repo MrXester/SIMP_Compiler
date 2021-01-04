@@ -73,7 +73,7 @@ Repeat: REPEAT '{' Cmds '}' UNTIL ExprCmpInt                             {asprin
 While: WHILE ExprCmpInt '{' Cmds '}'                                     {asprintf(&$$,"E%d:\n%sJZ E%d\n%sJUMP E%d\nE%d:\n",tag_num,$2,tag_num+1,$4,tag_num,tag_num+1); tag_num +=2;}
      ;
 
-ForL: FOR '(' Cmd ',' ExprCmpInt ',' Cmd ')' '{' Cmds '}'              {asprintf(&$$,"%sE%d:\n%SJZ E%d\n%s%sJUMP E%d\nE%d:\n",$2,tag_num,$5,tag_num+1,$10,$7,tag_num,tag_num+1); tag_num +=2;}
+ForL: FOR '(' Cmd ',' ExprCmpInt ',' Cmd ')' '{' Cmds '}'              {asprintf(&$$,"%sE%d:\n%sJZ E%d\n%s%sJUMP E%d\nE%d:\n",$3,tag_num,$5,tag_num+1,$10,$7,tag_num,tag_num+1); tag_num +=2;}
     ; 
 
 Atrib : ID    '='    ExprCmpInt                     { atribui(&$$,$1,$3,"",tabID,INTEG,&flagError); }
