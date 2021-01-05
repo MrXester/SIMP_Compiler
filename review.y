@@ -25,7 +25,7 @@ extern int yylineno;
 
 
 %%
-Programa: Header Main              { printf("%s%s",$1,$2); }
+Programa: Header Main              { printf("%s%sSTOP\n",$1,$2); }
         ;
 
 Header: DECLARE '{' ListIds '}'     { $$ = strdup($3); }
@@ -42,6 +42,7 @@ ListId: Identificador
 
 Identificador: ID                    { aloca(&$$,tabID,$1,INTEG,1,&flagError); }
 			 | ID'['INT']'                 { aloca(&$$,tabID,$1,ARRAY,$3,&flagError); }
+       | ID'['INT']''['INT']'        { aloca(&$$,tabID,$1,ARRTD,$3*$6,&flagError); }
 			 ;
 
 Main: MAIN '{' Cmds '}' 				     { asprintf(&$$,"START\n%s",$3); }
@@ -76,8 +77,9 @@ While: WHILE ExprCmpInt '{' Cmds '}'                                     {asprin
 ForL: FOR '(' Cmd ',' ExprCmpInt ',' Cmd ')' '{' Cmds '}'              {asprintf(&$$,"%sE%d:\n%sJZ E%d\n%s%sJUMP E%d\nE%d:\n",$3,tag_num,$5,tag_num+1,$10,$7,tag_num,tag_num+1); tag_num +=2;}
     ; 
 
-Atrib : ID    '='    ExprCmpInt                     { atribui(&$$,$1,$3,"",tabID,INTEG,&flagError); }
-      | ID'['ExprInt']' '=' ExprCmpInt              { atribui(&$$,$1,$6,$3,tabID,ARRAY,&flagError); }
+Atrib : ID    '='    ExprCmpInt                                 { atribui(&$$,$1,$3,"","",tabID,INTEG,&flagError); }
+      | ID'['ExprInt']' '=' ExprCmpInt                          { atribui(&$$,$1,$6,$3,"",tabID,ARRAY,&flagError); }
+      | ID'['ExprInt']''['ExprInt']' '=' ExprCmpInt             { atribui(&$$,$1,$9,$3,$6,tabID,ARRTD,&flagError); }
       ;
 
 
@@ -85,8 +87,9 @@ Write: WRITE '(' ExprCmpInt ')'                      { asprintf(&$$,"%sWRITEI\n"
      ;
 
 
-Read: READ '(' ID ')'                                { le(&$$,$3,INTEG,"",tabID,&flagError); }
-    | READ '(' ID '['ExprInt']' ')'                  { le(&$$,$3,ARRAY,$5,tabID,&flagError); }
+Read: READ '(' ID ')'                                { le(&$$,$3,INTEG,"","",tabID,&flagError); }
+    | READ '(' ID '['ExprInt']' ')'                  { le(&$$,$3,ARRAY,$5,"",tabID,&flagError); }
+    | READ '(' ID '['ExprInt']' '['ExprInt']' ')'    { le(&$$,$3,ARRTD,$5,$8,tabID,&flagError); }
     ;
 
 
@@ -119,12 +122,11 @@ Fator : INT                                   { asprintf(&$$,"PUSHI %d\n",$1); }
     | '-' INT                                 { asprintf(&$$,"PUSHI -%d\n",$2); }
     | TRUE									                  { asprintf(&$$,"PUSHI 1\n"); }
     | FALSE									                  { asprintf(&$$,"PUSHI 0\n"); }
-    | ID                                      { fetch_var(&$$,$1,INTEG,"",tabID,&flagError); }
-    | ID '['ExprInt']'                        { fetch_var(&$$, $1,ARRAY,$3,tabID,&flagError); }
+    | ID                                      { fetch_var(&$$,$1,INTEG,"","",tabID,&flagError); }
+    | ID '['ExprInt']'                        { fetch_var(&$$, $1,ARRAY,$3,"",tabID,&flagError); }
+    | ID '['ExprInt']''['ExprInt']'           { fetch_var(&$$, $1,ARRTD,$3,$6,tabID,&flagError); }
     | '(' ExprCmpInt ')'                      { asprintf(&$$,"%s",$2);}
     ;
-
-
 
 %%
 
@@ -134,9 +136,8 @@ void yyerror(const char* msg){
 
 int main(){
 	tabID = new_hash_table();
-    yyparse();
-    printf("STOP\n");
-    return 0;
+  yyparse();
+  return 0;
 }
 
 

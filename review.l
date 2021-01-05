@@ -11,7 +11,7 @@
 
 %%
 
-[+\-*/()=\{\},%\[\]]						{return yytext[0];}
+[+\-*/()=\{\},%\[\]]					{return yytext[0];}
 (?i:false)								{return FALSE;}
 (?i:true)								{return TRUE;}
 (?i:or)									{return OR;}
@@ -20,7 +20,7 @@
 (?i:declare)        					{return DECLARE;}
 (?i:if)                                 {return IF;}
 (?i:WHILE)                              {return WHILE;}
-(?i:FOR)                                 {return FOR;}
+(?i:FOR)                                {return FOR;}
 (?i:then)                               {return THEN;}
 (?i:else)                               {return ELSE;}
 (?i:repeat)                             {return REPEAT;}

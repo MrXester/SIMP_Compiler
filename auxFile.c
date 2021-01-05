@@ -35,6 +35,21 @@ HASH_TABLE new_hash_table(){
    return new;
 }
 
+
+VAR_LIST lookup(HASH_TABLE hash_table, char* var_name){
+	int key = (int) hashFun(var_name);
+
+	VAR_LIST curr = hash_table->table[key];
+
+	while(curr != NULL && strcmp(curr->name,var_name) != 0 ){
+		curr = curr -> prox;
+	}
+
+	return curr;
+}
+
+
+
 void aloca(char**instruction,HASH_TABLE hash_table, char* var_name, int type, int size, int *flagError ){
 	int key = (int) hashFun(var_name);
 	VAR_LIST elem = lookup(hash_table,var_name);
@@ -52,64 +67,12 @@ void aloca(char**instruction,HASH_TABLE hash_table, char* var_name, int type, in
 	hash_table->table[key] = allocate;
 	hash_table->used += size;
 
-	switch(type) {
-
-		case ARRAY:
-			asprintf(instruction,"PUSHN %d\n", size);
-			break;
-
-		default:
-			asprintf(instruction,"PUSHI 0\n");
-			break;
-	}
-
-}
-
-
-void atribui(char**instruction, char* var_name, char*inst_var_val, char* inst_index, HASH_TABLE tabID, int type, int *flagError){
-	VAR_LIST elem = lookup(tabID,var_name);
-	if (elem == NULL){
-		printf("NOALLOC\n");
-		*flagError = NOALLOC;
-		return;
-	}
-
-	if(elem -> type != type){
-		printf("TYPE DIFF\n");
-		*flagError = TYPDIFF;
-		return;
-	}
-
-	switch (type) {
-
-		case ARRAY:
-			asprintf(instruction,"PUSHGP\nPUSHI %d\nPADD\n%s%sSTOREN\n",elem->pos,inst_index,inst_var_val);
-			break;
-
-		default:
-			asprintf(instruction,"%sSTOREG %d\n",inst_var_val,elem->pos);
-			break;
-	}
-
+	asprintf(instruction,"PUSHN %d\n", size);
 }
 
 
 
-VAR_LIST lookup(HASH_TABLE hash_table, char* var_name){
-	int key = (int) hashFun(var_name);
-
-	VAR_LIST curr = hash_table->table[key];
-
-	while(curr != NULL && strcmp(curr->name,var_name) != 0 ){
-		curr = curr -> prox;
-	}
-
-	return curr;
-}
-
-
-
-void fetch_var(char** instruction, char* var_name, int type, char* inst_index, HASH_TABLE tabID, int *flagError){
+void fetch_var(char** instruction, char* var_name, int type, char* inst_frstindex, char* inst_scndindex, HASH_TABLE tabID, int *flagError){
 	VAR_LIST elem = lookup(tabID,var_name);
 
 	if (elem == NULL){
@@ -126,32 +89,21 @@ void fetch_var(char** instruction, char* var_name, int type, char* inst_index, H
 	switch (type) {
 
 		case ARRAY:
-			asprintf(instruction,"PUSHGP\nPUSHI %d\nPADD\n%sLOADN\n",elem->pos,inst_index);
+			asprintf(instruction,"PUSHGP\nPUSHI %d\nPADD\n%sLOADN\n",elem->pos,inst_frstindex);
+			break;
+
+		case ARRTD:
+			asprintf(instruction, "PUSHGP\nPUSHI %d\nPADD\n%s%sMULT\nLOADN\n", elem->pos, inst_frstindex, inst_scndindex);
 			break;
 
 		default:
 			asprintf(instruction, "PUSHG %d\n", elem->pos);
 			break;
 	}
-	
 }
 
-
-void escreve(char** instruction, char* var_name, HASH_TABLE tabID, int *flagError){
+void atribui(char**instruction, char* var_name, char*inst_var_val, char* inst_frstindex, char* inst_scndindex, HASH_TABLE tabID, int type, int *flagError){
 	VAR_LIST elem = lookup(tabID,var_name);
-
-	if (elem == NULL){
-		printf("NOALLOC\n");
-		*flagError = NOALLOC;
-		return;
-	}
-
-	asprintf(instruction, "PUSHG %d\nWRITEI\n", elem->pos);
-}
-
-void le(char**instruction,char* var_name, int type, char* inst_index, HASH_TABLE tabID, int *flagError){
-	VAR_LIST elem = lookup(tabID,var_name);
-
 	if (elem == NULL){
 		printf("NOALLOC\n");
 		*flagError = NOALLOC;
@@ -167,14 +119,22 @@ void le(char**instruction,char* var_name, int type, char* inst_index, HASH_TABLE
 	switch (type) {
 
 		case ARRAY:
-			asprintf(instruction,"PUSHGP\nPUSHI %d\nPADD\n%sREAD\nATOI\nSTOREN\n",elem->pos,inst_index);
+			asprintf(instruction,"PUSHGP\nPUSHI %d\nPADD\n%s%sSTOREN\n",elem->pos,inst_frstindex,inst_var_val);
+			break;
+
+
+		case ARRTD:
+			asprintf(instruction, "PUSHGP\nPUSHI %d\nPADD\n%s%sMULT\nSTOREN\n", elem->pos, inst_frstindex, inst_scndindex);
 			break;
 
 		default:
-			asprintf(instruction, "READ\nATOI\nSTOREG %d\n", elem->pos);
+			asprintf(instruction,"%sSTOREG %d\n",inst_var_val,elem->pos);
 			break;
 	}
+}
 
 
-	
+
+void le(char**instruction,char* var_name, int type, char* inst_frstindex, char* inst_scndindex, HASH_TABLE tabID, int *flagError){
+	atribui(instruction,var_name,"READ\nATOI\n",inst_frstindex, inst_scndindex,tabID,type,flagError);
 }

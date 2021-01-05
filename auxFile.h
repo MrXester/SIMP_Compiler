@@ -9,6 +9,7 @@
 
 #define INTEG 1
 #define ARRAY 2
+#define ARRTD 3
 
 typedef struct var_list{
 	char* name;
