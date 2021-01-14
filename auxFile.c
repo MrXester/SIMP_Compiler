@@ -125,7 +125,7 @@ void atribui(char**instruction, char* var_name, char*inst_var_val, char* inst_fr
 
 
 		case ARRTD:
-			asprintf(instruction, "PUSHGP\nPUSHI %d\nPADD\n%sPUSHI %d\nMUL\n%sADD\nSTOREN\n", elem->pos, inst_scndindex, elem -> line, inst_frstindex);
+			asprintf(instruction, "PUSHGP\nPUSHI %d\nPADD\n%sPUSHI %d\nMUL\n%sADD\n%sSTOREN\n", elem->pos, inst_scndindex, elem -> line, inst_frstindex,inst_var_val);
 			break;
 
 		default:
