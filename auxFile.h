@@ -15,6 +15,7 @@ typedef struct var_list{
 	char* name;
 	int pos;
 	int type;
+	int line;
 	struct var_list* prox;
 }*VAR_LIST;
 
@@ -30,3 +31,8 @@ HASH_TABLE new_hash_table();
 int insert(HASH_TABLE hash_table, char* var_name);
 
 VAR_LIST lookup(HASH_TABLE hash_table, char* var_name);
+
+
+
+// x[a][b]    x[y][z]
+// b*y + a

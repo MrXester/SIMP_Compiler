@@ -40,9 +40,9 @@ ListId: Identificador
 	  | ListId ',' Identificador			{ asprintf(&$$,"%s%s",$1,$3);}
 	  ;
 
-Identificador: ID                    { aloca(&$$,tabID,$1,INTEG,1,&flagError); }
-			 | ID'['INT']'                 { aloca(&$$,tabID,$1,ARRAY,$3,&flagError); }
-       | ID'['INT']''['INT']'        { aloca(&$$,tabID,$1,ARRTD,$3*$6,&flagError); }
+Identificador: ID                    { aloca(&$$,tabID,$1,INTEG,1,1,&flagError); }
+			 | ID'['INT']'                 { aloca(&$$,tabID,$1,ARRAY,$3,1,&flagError); }
+       | ID'['INT']''['INT']'        { aloca(&$$,tabID,$1,ARRTD,$3,$6,&flagError); }
 			 ;
 
 Main: MAIN '{' Cmds '}' 				     { asprintf(&$$,"START\n%s",$3); }

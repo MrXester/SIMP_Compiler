@@ -50,7 +50,7 @@ VAR_LIST lookup(HASH_TABLE hash_table, char* var_name){
 
 
 
-void aloca(char**instruction,HASH_TABLE hash_table, char* var_name, int type, int size, int *flagError ){
+void aloca(char**instruction,HASH_TABLE hash_table, char* var_name, int type, int lin, int col, int *flagError ){
 	int key = (int) hashFun(var_name);
 	VAR_LIST elem = lookup(hash_table,var_name);
 
@@ -63,11 +63,12 @@ void aloca(char**instruction,HASH_TABLE hash_table, char* var_name, int type, in
 
 	VAR_LIST allocate = new_list(var_name, hash_table->used);
 	allocate->type = type;
+	allocate->line = lin;
 	allocate->prox = hash_table->table[key];
 	hash_table->table[key] = allocate;
-	hash_table->used += size;
+	hash_table->used += lin*col;
 
-	asprintf(instruction,"PUSHN %d\n", size);
+	asprintf(instruction,"PUSHN %d\n", lin*col);
 }
 
 
@@ -93,7 +94,7 @@ void fetch_var(char** instruction, char* var_name, int type, char* inst_frstinde
 			break;
 
 		case ARRTD:
-			asprintf(instruction, "PUSHGP\nPUSHI %d\nPADD\n%s%sMULT\nLOADN\n", elem->pos, inst_frstindex, inst_scndindex);
+			asprintf(instruction, "PUSHGP\nPUSHI %d\nPADD\n%sPUSHI%dMULT\n%sADD\nLOADN\n", elem->pos, inst_scndindex, elem -> line, inst_frstindex);
 			break;
 
 		default:
@@ -124,7 +125,7 @@ void atribui(char**instruction, char* var_name, char*inst_var_val, char* inst_fr
 
 
 		case ARRTD:
-			asprintf(instruction, "PUSHGP\nPUSHI %d\nPADD\n%s%sMULT\nSTOREN\n", elem->pos, inst_frstindex, inst_scndindex);
+			asprintf(instruction, "PUSHGP\nPUSHI %d\nPADD\n%sPUSHI%dMULT\n%sADD\nSTOREN\n", elem->pos, inst_scndindex, elem -> line, inst_frstindex);
 			break;
 
 		default:
