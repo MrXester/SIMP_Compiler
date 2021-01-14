@@ -7,7 +7,7 @@
 		{ "trigger": "if", "contents": "if ${1:~/cond/~} then{\n	skip\n}\nelse{\n	skip\n}\n", "annotation": "if..then..else" },
 		{ "trigger": "repeat", "contents": "repeat{\n	skip\n} until ${1:~/cond/~} \n", "annotation": "repeat..until" },
 		{ "trigger": "while", "contents": "while ${1:~/cond/~} {\n	skip\n}\n", "annotation": "while loop" },
-		{ "trigger": "for", "contents": "for(${1:~/cmd/~}, ${2:~/cond/~}, ${2:~/cmd/~}){\n	skip\n}\n", "annotation": "for loop" },
+		{ "trigger": "for", "contents": "for(${1:~/start/~}, ${2:~/cond/~}, ${2:~/increment/~}){\n	skip\n}\n", "annotation": "for loop" },
 		{ "trigger": "read", "contents": "read(${1:~/ids/~})", "annotation": "builtin func"},
 		{ "trigger": "write", "contents": "write(${1:~/ids/~})", "annotation": "builtin func"}
 	]
