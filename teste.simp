@@ -1,0 +1,20 @@
+declare{
+	nome[3][45]
+	name[2]
+	x
+}
+
+
+main{
+	nome[2][3] = 3
+	nome[3][2] = 1
+
+	x = 54
+
+	nome[2][10] = x
+
+	for(x = 2, x < 5, x = x + 1){
+		write(x)
+	}
+	
+}

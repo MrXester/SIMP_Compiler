@@ -34,7 +34,7 @@ extern int yylineno;
 Programa: Header Blocos Main              { asprintf(&res,"%s%sSTOP\n%s\n",$1,$3,$2); }
         ;
 
-Blocos:                                      {;}
+Blocos:                                      {$$ = strdup("");}
       | Bloco Blocos                         { asprintf(&$$,"%s%s", $1,$2);}
       ;
 
@@ -107,7 +107,7 @@ Read: READ '(' ID ')'                                { le(&$$,$3,INTEG,"","",tab
     | READ '(' ID '['ExprInt']' '['ExprInt']' ')'    { le(&$$,$3,ARRTD,$5,$8,tabID,&flagError); if (flagError) return; }
     ;
 
-FuncCall: ID'('')'                                    {asprintf(&$$,"PUSHI 0\nPUSHA E%d\nCALL\nPOP\n", fetch_fun($1,VOID,tabID,&flagError));}
+FuncCall: ID'('')'                                    {asprintf(&$$,"PUSHI 0\nPUSHA E%d\nCALL\nPOP 1\n", fetch_fun($1,VOID,tabID,&flagError));}
         ;
 
 ExprCmpInt: ExprInt 								                { asprintf(&$$, "%s",$1); }
@@ -213,6 +213,10 @@ void errorHand(){
 
     case NODEFIN:
     printf("%s FUNCTION NOT DEFINED CALLED, line: %d\n", error, yylineno-1);
+    break;
+
+    case REDEFIN:
+    printf("%s FUNCTION REDEFINED, line: %d\n", error, yylineno-1);
     break;
   }
 }
