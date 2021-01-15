@@ -28,6 +28,7 @@ HASH_TABLE new_hash_table(){
    
    for(i = 0; i < HASHSZ; i++){
    	new->table[i] = NULL;
+   	new->fun_table[i] = NULL;
    }
 
    new -> used = 0;
@@ -131,6 +132,54 @@ void atribui(char**instruction, char* var_name, char*inst_var_val, char* inst_fr
 
 
 
-void le(char**instruction,char* var_name, int type, char* inst_frstindex, char* inst_scndindex, HASH_TABLE tabID, int *flagError){
+void le(char**instruction,char* var_name, int type, char* inst_frstindex, char* inst_scndindex, HASH_TABLE tabID, int* flagError){
 	atribui(instruction,var_name,"READ\nATOI\n",inst_frstindex, inst_scndindex,tabID,type,flagError);
+}
+
+
+int fetch_fun(char* fun_name, int type, HASH_TABLE hash_table, int* flagError){
+	int key = (int) hashFun(fun_name);
+	FUN_LIST curr = hash_table->fun_table[key];
+	while(curr != NULL && strcmp(curr->name,fun_name) != 0 ){
+		curr = curr -> prox;
+	}
+
+	if (curr == NULL){
+		*flagError = NODEFIN;
+		return -1; 
+	}
+
+	if (type != VOID && curr->type == VOID){
+		*flagError = NORETRN;
+		return -1;
+	}
+
+	return curr->tag;
+}
+
+
+void aloca_fun(char* fun_name, int type, HASH_TABLE hash_table, int tag_num, int* flagError){
+	int x;
+	int key = (int) hashFun(fun_name);
+	fetch_fun(fun_name,VOID,hash_table,&x);
+
+	if (x != NODEFIN){
+		*flagError = REDEFIN;
+		return;
+	}
+
+	FUN_LIST allocate = new_fun_list(fun_name);
+	allocate->tag = tag_num;
+	allocate->type = type;
+	allocate->prox = hash_table->fun_table[key];
+	hash_table->fun_table[key] = allocate;
+}
+
+
+FUN_LIST new_fun_list(char*name){
+	FUN_LIST new = (FUN_LIST) malloc(sizeof(struct fun_list));
+
+	new -> name = strdup(name);
+	new -> prox = NULL;
+	return new;
 }

@@ -2,7 +2,7 @@
 declare{
 	repeatx,y
 	i
-	fib[30],banana[3][4]
+	fib[30],banana[3][4],i
 }
 
 ~/

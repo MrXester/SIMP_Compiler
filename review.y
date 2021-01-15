@@ -22,16 +22,25 @@ extern int yylineno;
 %union{ int intg; char*string;}
 %token AND OR NOT
 %token EQ NE LT LE GT GE
-%token TRUE FALSE IF THEN ELSE REPEAT UNTIL FOR WHILE
+%token TRUE FALSE IF THEN ELSE REPEAT UNTIL FOR WHILE RETURN
 %token <string> DECLARE ID MAIN WRITE READ SKIP
 %token <intg> INT
 
 %type <string> Header ListIds ListId Main Cmds Cmd Atrib Write Read ExprCmpInt ExprInt Termo Fator Condic Repeat ForL While Identificador
+%type <string> Bloco Blocos FuncCall
 
 
 %%
-Programa: Header Main              { asprintf(&res,"%s%sSTOP\n",$1,$2); }
+Programa: Header Blocos Main              { asprintf(&res,"%s%sSTOP\n%s\n",$1,$3,$2); }
         ;
+
+Blocos:                                      {;}
+      | Bloco Blocos                         { asprintf(&$$,"%s%s", $1,$2);}
+      ;
+
+Bloco: ID '{' Cmds '}'                        { asprintf(&$$,"E%d:\n%sRETURN\n",tag_num,$3); aloca_fun($1,VOID,tabID,tag_num,&flagError); tag_num++;}
+     | ID '{' Cmds RETURN ExprCmpInt '}'      { asprintf(&$$,"E%d:\n%s%sSTOREL -1\nRETURN\n",tag_num,$3,$5); aloca_fun($1,INTE,tabID,tag_num,&flagError); tag_num++;}
+     ;
 
 Header: DECLARE '{' ListIds '}'     { $$ = strdup($3); }
       ;
@@ -67,6 +76,7 @@ Cmd : Atrib             						  { $$ = strdup($1); }
     | While                           { $$ = strdup($1); }
     | ForL                            { $$ = strdup($1); }
 	  | SKIP                            { $$ = strdup(""); }
+    | FuncCall                        { $$ = strdup($1); }
     ;
 
 
@@ -97,6 +107,8 @@ Read: READ '(' ID ')'                                { le(&$$,$3,INTEG,"","",tab
     | READ '(' ID '['ExprInt']' '['ExprInt']' ')'    { le(&$$,$3,ARRTD,$5,$8,tabID,&flagError); if (flagError) return; }
     ;
 
+FuncCall: ID'('')'                                    {asprintf(&$$,"PUSHI 0\nPUSHA E%d\nCALL\nPOP\n", fetch_fun($1,VOID,tabID,&flagError));}
+        ;
 
 ExprCmpInt: ExprInt 								                { asprintf(&$$, "%s",$1); }
 		      | ExprCmpInt EQ ExprCmpInt                { asprintf(&$$, "%s%sEQUAL\n",$1,$3); }
@@ -127,6 +139,7 @@ Fator : INT                                   { asprintf(&$$,"PUSHI %d\n",$1); }
     | '-' INT                                 { asprintf(&$$,"PUSHI -%d\n",$2); }
     | TRUE									                  { asprintf(&$$,"PUSHI 1\n"); }
     | FALSE									                  { asprintf(&$$,"PUSHI 0\n"); }
+    | ID'('')'                                { asprintf(&$$,"PUSHI 0\nPUSHA E%d\nCALL\n",fetch_fun($1,INTE,tabID,&flagError)); if (flagError) return;}
     | ID                                      { fetch_var(&$$,$1,INTEG,"","",tabID,&flagError); if (flagError) return;}
     | ID '['ExprInt']'                        { fetch_var(&$$, $1,ARRAY,$3,"",tabID,&flagError); if (flagError) return;}
     | ID '['ExprInt']''['ExprInt']'           { fetch_var(&$$, $1,ARRTD,$3,$6,tabID,&flagError); if (flagError) return;}
@@ -192,6 +205,14 @@ void errorHand(){
 
     case TYPDIFF:
     printf("%s INCOMPATIBLE TYPES, line: %d\n", error, yylineno-1);
+    break;
+
+    case NORETRN:
+    printf("%s FUNCTION WITH NO RETURN CALLED IN EXPRESSION, line: %d\n", error, yylineno-1);
+    break;
+
+    case NODEFIN:
+    printf("%s FUNCTION NOT DEFINED CALLED, line: %d\n", error, yylineno-1);
     break;
   }
 }

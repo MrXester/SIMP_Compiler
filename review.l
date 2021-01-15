@@ -26,6 +26,7 @@
 (?i:repeat)                             {return REPEAT;}
 (?i:until)                              {return UNTIL;}
 (?i:skip)                               {return SKIP;}
+(?i:return)                             {return RETURN;}
 "=="									{return EQ;}
 "!="									{return NE;}
 "<="									{return LE;}
