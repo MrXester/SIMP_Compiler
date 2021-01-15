@@ -55,7 +55,6 @@ void aloca(char**instruction,HASH_TABLE hash_table, char* var_name, int type, in
 	VAR_LIST elem = lookup(hash_table,var_name);
 
 	if( elem != NULL){
-		printf("REALLOC\n");
 		*flagError = REALLOC;
 		return;
 	}
@@ -77,13 +76,11 @@ void fetch_var(char** instruction, char* var_name, int type, char* inst_frstinde
 	VAR_LIST elem = lookup(tabID,var_name);
 
 	if (elem == NULL){
-		printf("NOALLOC\n");
 		*flagError = NOALLOC;
 		return;
 	}
 
 	if(elem->type != type){
-		printf("TYPEDIFF\n");
 		*flagError = TYPDIFF;
 	}
 
@@ -106,13 +103,11 @@ void fetch_var(char** instruction, char* var_name, int type, char* inst_frstinde
 void atribui(char**instruction, char* var_name, char*inst_var_val, char* inst_frstindex, char* inst_scndindex, HASH_TABLE tabID, int type, int *flagError){
 	VAR_LIST elem = lookup(tabID,var_name);
 	if (elem == NULL){
-		printf("NOALLOC\n");
 		*flagError = NOALLOC;
 		return;
 	}
 
 	if(elem -> type != type){
-		printf("TYPE DIFF\n");
 		*flagError = TYPDIFF;
 		return;
 	}
