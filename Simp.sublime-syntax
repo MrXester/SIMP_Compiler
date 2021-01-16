@@ -1,42 +1,75 @@
 %YAML 1.2
 ---
-# See http://www.sublimetext.com/docs/3/syntax.html
+
 file_extensions:
   - simp
 scope: source.simp
 
 contexts:
-  # The prototype context is prepended to all contexts but those setting
-  # meta_include_prototype: false.
   prototype:
     - include: comments
 
-
   main:
-    # The main context is the initial starting point of our syntax.
-    # Include other contexts from here (or specify them directly).
-
     - match: '\b(?i:declare)\b'
-      scope: keyword.operator.simp
+      scope: keyword.operator.assignment.simp
       push: declare
 
     - match: '\b(?i:main)\b'
-      scope: keyword.operator.simp
+      scope: keyword.operator.assignment.simp
+
+    - match: '\b[a-zA-Z]+\b'
+      scope: keyword.declaration.function.simp
+
+    - match: '{'
       push: start
 
+
+  declare:
+    - include: builtIn
+
+    - match: '\b[a-zA-Z]+\b'
+      scope: variable.parameter.simp
+
+    - match: '}'
+      pop: true
+
+
+  start:
+    - include: keywords
+    - include: builtIn
+
+    - match: '([a-zA-Z]+)\(\)'
+      scope: variable.annotation.function.simp
+
+    - match: '\b[a-zA-Z]+\b'
+      scope: entity.name.variable.simp
+
+    - match: '='
+      scope: keyword.operator.assignment.simp
+      push: externExpr
+
+
+
+    - match: '}'
+      pop: true
+
+
   keywords:
-    - match: '\bif|for|while|until\b'
+    - match: '\b(?i:if)|(?i:for)|(?i:while)|(?i:until)|(?i:return)|(?i:then)|(?i:else)|(?i:repeat)\b'
       scope: support.type.simp
 
-    - match: '\bthen|else|repeat\b'
-      scope: support.type.simp
-      push: externExpr
+    - match: '{'
+      push: start
 
     - match: '\b(?i:or)|(?i:and)|not\b'
       scope: keyword.operator.logical.simp
 
     - match: '\b(?i:false)|(?i:true)\b'
       scope: constant.language
+
+
+
+
 
   builtIn:
     - match: '\bskip\b'
@@ -46,12 +79,37 @@ contexts:
       scope: string.quoted.double.block.simp
       push:
         - include: numbers
-        - include:  symbs
+        - include: symbs
         - match: '\b[a-zA-Z]+\b'
           scope: entity.name.function.simp
 
         - match: '\)'
           pop: true
+
+  externExpr:
+    - include: expr
+    - match: '\n|,}'
+      pop: true
+
+  internExpr:
+    - include: expr
+    - match: '\]'
+      pop: true
+
+
+  expr:
+    - include: symbs
+    - include: numbers
+    - include: keywords
+    - include: builtIn
+
+
+    - match: '[a-zA-Z]+\(\)'
+      scope: variable.annotation.function.simp
+
+    - match: '\b[a-zA-Z]+\b'
+      scope: entity.name.variable.simp
+
 
   numbers:
     - match: '\b(-)?[0-9]+\b'
@@ -64,53 +122,11 @@ contexts:
     - match: '==|!=|<=|<|>=|>'
       scope: keyword.operator.logical.simp
 
-  expr:
-    - include: symbs
-    - include: numbers
-    - include: keywords
-    - include: builtIn
-
-    - match: '\b[a-zA-Z]+\b'
-      scope: entity.name.variable.simp
-
-  externExpr:
-    - include: expr
-    - match: '\n|,'
-      pop: true
-
-  internExpr:
-    - include: expr
-
-    - match: '\]'
-      pop: true
-
-  declare:
-    - match: '\b[a-zA-Z]+\b'
-      scope: variable.parameter.simp
-
-    - match: '}'
-      pop: true
-
-  start:
-    - include: builtIn
-    - include: keywords
-    - include: symbs
-    - include: numbers
-
-    - match: '\b[a-zA-Z]+\b'
-      scope: entity.name.variable.simp
-
-    - match: '='
-      scope: keyword.operator.assignment.simp
-      push: externExpr
-
 
   comments:
-    # Comments begin with a '//' and finish at the end of the line.
     - match: '~ '
       scope: punctuation.definition.comment.simp
       push:
-        # This is an anonymous context push for brevity.
         - meta_scope: comment.line.number-sign.simp
         - match: $\n?
           pop: true
@@ -118,10 +134,11 @@ contexts:
     - match: '~/'
       scope: punctuation.definition.comment.simp
       push:
-        # This is an anonymous context push for brevity.
         - meta_scope: comment.block.documentation.simp
         - match: '/~'
           pop: true
+
+
 
 #keyword.operator.assignment.simp
 #support.function.builtin.simp
