@@ -11,11 +11,11 @@ contexts:
 
   main:
     - match: '\b(?i:declare)\b'
-      scope: keyword.operator.assignment.simp
+      scope: constant.other.placeholder
       push: declare
 
     - match: '\b(?i:main)\b'
-      scope: keyword.operator.assignment.simp
+      scope: constant.other.placeholder
 
     - match: '\b[a-zA-Z]+\b'
       scope: keyword.declaration.function.simp
@@ -34,29 +34,35 @@ contexts:
       pop: true
 
 
-  start:
-    - include: keywords
-    - include: builtIn
-
-    - match: '([a-zA-Z]+)\(\)'
-      scope: variable.annotation.function.simp
+  variables:
+    - match: '[a-zA-Z]+\(\)'
+      scope: variable.annotation.function.sim
 
     - match: '\b[a-zA-Z]+\b'
       scope: entity.name.variable.simp
 
-    - match: '='
-      scope: keyword.operator.assignment.simp
-      push: externExpr
 
 
+  start:
+    - include: keywords
+    - include: builtIn
+    - include: variables
+    - include: expr
 
     - match: '}'
       pop: true
 
 
   keywords:
-    - match: '\b(?i:if)|(?i:for)|(?i:while)|(?i:until)|(?i:return)|(?i:then)|(?i:else)|(?i:repeat)\b'
+    - match: '\b(?i:return)|(?i:then)|(?i:else)|(?i:repeat)|(?i:for)\b'
       scope: support.type.simp
+
+    - match: '(?i:if)|(?i:while)|(?i:until)'
+      scope: support.type.simp
+      push:
+        - include: expr
+        - match: '{|\n'
+          pop: true
 
     - match: '{'
       push: start
@@ -66,7 +72,6 @@ contexts:
 
     - match: '\b(?i:false)|(?i:true)\b'
       scope: constant.language
-
 
 
 
@@ -86,26 +91,13 @@ contexts:
         - match: '\)'
           pop: true
 
-  externExpr:
-    - include: expr
-    - match: '\n|,}'
-      pop: true
-
-  internExpr:
-    - include: expr
-    - match: '\]'
-      pop: true
-
 
   expr:
     - include: symbs
     - include: numbers
     - include: keywords
     - include: builtIn
-
-
-    - match: '[a-zA-Z]+\(\)'
-      scope: variable.annotation.function.simp
+    - include: variables
 
     - match: '\b[a-zA-Z]+\b'
       scope: entity.name.variable.simp
@@ -119,7 +111,7 @@ contexts:
     - match: '[\+\-\*\/\%]'
       scope: keyword.operator.arithmetic.simp
 
-    - match: '==|!=|<=|<|>=|>'
+    - match: '==|!=|<=|<|>=|>|='
       scope: keyword.operator.logical.simp
 
 
