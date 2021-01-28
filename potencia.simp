@@ -1,0 +1,22 @@
+declare{
+	base,exp,accum,x
+}
+
+potencia{
+	read(base)
+	read(exp)
+	accum = 1
+
+	while exp != 0 {
+		accum = accum * base
+		exp = exp - 1
+	}
+
+	return accum
+}
+
+main{
+	x = potencia()
+
+	write(x)
+}

@@ -1,0 +1,21 @@
+declare{
+	i,curr,l
+}
+
+main{
+
+	read(l)
+	curr = l
+
+	for(i = 0, i < 3 and curr == l , i = i + 1){
+		read(curr)
+	}
+	
+	if i == 3 then{
+		write(1)
+	}
+	else{
+		write(0)
+	}
+	
+}

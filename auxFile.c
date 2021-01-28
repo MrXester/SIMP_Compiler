@@ -149,6 +149,10 @@ int fetch_fun(char* fun_name, int type, HASH_TABLE hash_table, int* flagError){
 		return -1; 
 	}
 
+	if (type == VOID && curr->type != VOID){
+		printf("WARNING: RETURN VALUE OF FUNCTION: %s() IS IGNORED\n", curr->name);
+	}
+
 	if (type != VOID && curr->type == VOID){
 		*flagError = NORETRN;
 		return -1;

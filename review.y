@@ -112,26 +112,26 @@ FuncCall: ID'('')'                                    {asprintf(&$$,"PUSHI 0\nPU
 
 ExprCmpInt: ExprInt 								                { asprintf(&$$, "%s",$1); }
 		      | ExprCmpInt EQ ExprCmpInt                { asprintf(&$$, "%s%sEQUAL\n",$1,$3); }
-          | ExprCmpInt NE ExprCmpInt                { asprintf(&$$, "%s%sEQUAL\nNOT",$1,$3); }
+          | ExprCmpInt NE ExprCmpInt                { asprintf(&$$, "%s%sEQUAL\nNOT\n",$1,$3); }
           | ExprCmpInt LT ExprCmpInt                { asprintf(&$$, "%s%sINF\n",$1,$3); }
           | ExprCmpInt LE ExprCmpInt                { asprintf(&$$, "%s%sINFEQ\n",$1,$3); }
           | ExprCmpInt GT ExprCmpInt                { asprintf(&$$, "%s%sSUP\n",$1,$3); } 
           | ExprCmpInt GE ExprCmpInt                { asprintf(&$$, "%s%sSUPEQ\n",$1,$3); }
           | NOT ExprCmpInt  						            { asprintf(&$$, "%sNOT\n",$2); }
+          | ExprCmpInt OR ExprCmpInt                { asprintf(&$$, "%s%sADD\n",$1,$3);}
+          | ExprCmpInt AND ExprCmpInt               { asprintf(&$$, "%s%sMUL\n",$1,$3); }
           ;
 
 
 ExprInt: Termo                                { asprintf(&$$, "%s",$1); }
        | ExprInt '+' Termo                    { asprintf(&$$, "%s%sADD\n",$1,$3); }
        | ExprInt '-' Termo                    { asprintf(&$$, "%s%sSUB\n",$1,$3); }
-       | ExprInt OR Termo					            {	asprintf(&$$, "%s%sADD\n",$1,$3);}
        ;
 
 Termo : Fator                                 { asprintf(&$$, "%s",$1); }
     | Termo '*' Fator                         { asprintf(&$$, "%s%sMUL\n",$1,$3); }
     | Termo '/' Fator                         { asprintf(&$$, "%s%sDIV\n",$1,$3); }
     | Termo '%' Fator                         { asprintf(&$$, "%s%sMOD\n",$1,$3); }
-    | Termo AND Fator						              { asprintf(&$$, "%s%sMUL\n",$1,$3); }
     ;
 
 
@@ -173,7 +173,7 @@ int main(int argc, char const *argv[]){
   }
 
   if (!(fdOut = fopen(argv[1],"w"))){
-    printf("Error: An error ocurried Creating the compiled file\n");
+    printf("Error: An error ocurried creating the compiled file\n");
     return 3;
   }
 
