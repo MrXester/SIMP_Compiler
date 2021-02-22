@@ -7,3 +7,4 @@ SIMP -> Strings Integer Mixed Programming
 Autores-
 
 Luís Almeida: https://github.com/luislcc João Pedro Antunes: https://github.com/MrXester
+cc
