@@ -3,3 +3,7 @@ Compilador simples de uma linguagem de programação própria, desenvolvido em Y
 Inclui arquivos de Syntax Highlighting e AutoCompletion, da linguagem associada ao compilador, para sublime text;
 O compilador "traduz" expressões para um código assembly simulado de uma VM fornecida pelo docente da Unidade curricular.
 SIMP -> Strings Integer Mixed Programming
+
+Autores-
+
+Luís Almeida: https://github.com/luislcc João Pedro Antunes: https://github.com/MrXester
